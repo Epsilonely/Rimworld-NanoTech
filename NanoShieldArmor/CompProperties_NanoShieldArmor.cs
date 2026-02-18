@@ -14,8 +14,6 @@ namespace NanoShieldArmor
 
         public float energyOnReset = 0.5f;
 
-        public bool blocksRangedWeapons = false;
-
         public CompProperties_NanoShieldArmor()
         {
             compClass = typeof(CompNanoShieldArmor);

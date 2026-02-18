@@ -14,13 +14,9 @@ namespace NanoShieldArmor
         private Vector3 impactAngleVect;
         private bool broken;
 
-        public float Energy => energy;
-        public float GetEnergy() => energy;
-        public void SetEnergy(float value) => energy = value;
-        public bool IsBroken => broken;
-        public void SetBroken(bool value) => broken = value;
-        public int GetTicksToReset() => ticksToReset;
-        public void SetTicksToReset(int value) => ticksToReset = value;
+        public float Energy { get => energy; set => energy = value; }
+        public bool IsBroken { get => broken; set => broken = value; }
+        public int TicksToReset { get => ticksToReset; set => ticksToReset = value; }
         public float EnergyMax => parent.GetStatValue(StatDefOf.EnergyShieldEnergyMax);
 
         public CompProperties_NanoShieldArmor Props => (CompProperties_NanoShieldArmor)props;
@@ -43,6 +39,14 @@ namespace NanoShieldArmor
             {
                 energy = EnergyMax;
             }
+        }
+
+        public override void PostExposeData()
+        {
+            base.PostExposeData();
+            Scribe_Values.Look(ref energy, "energy", 0f);
+            Scribe_Values.Look(ref broken, "broken", false);
+            Scribe_Values.Look(ref ticksToReset, "ticksToReset", -1);
         }
 
         public override IEnumerable<Gizmo> CompGetWornGizmosExtra()
@@ -147,13 +151,14 @@ namespace NanoShieldArmor
             }
             else if (energy < EnergyMax)
             {
-                float rechargeRate = parent.GetStatValue(StatDefOf.EnergyShieldRechargeRate);
-                float energyGain = rechargeRate / 60f;
-                energy += energyGain;
-
-                if (energy > EnergyMax)
+                if (parent.IsHashIntervalTick(60))
                 {
-                    energy = EnergyMax;
+                    float rechargeRate = parent.GetStatValue(StatDefOf.EnergyShieldRechargeRate);
+                    energy += rechargeRate;
+                    if (energy > EnergyMax)
+                    {
+                        energy = EnergyMax;
+                    }
                 }
             }
         }
@@ -190,8 +195,6 @@ namespace NanoShieldArmor
                 return;
             }
 
-            // if (dinfo.Def.isRanged || dinfo.Def.isExplosive || dinfo.Def == DamageDefOf.EMP)
-            // {
             float energyLoss = dinfo.Def == DamageDefOf.EMP
                 ? dinfo.Amount * Props.energyLossPerDamage * 0.5f
                 : dinfo.Amount * Props.energyLossPerDamage;
@@ -204,8 +207,6 @@ namespace NanoShieldArmor
             absorbed = true;
             lastAbsorbDamageTick = Find.TickManager.TicksGame;
             impactAngleVect = Vector3Utility.HorizontalVectorFromAngle(dinfo.Angle);
-            return;
-            // }
         }
 
         private void Reset()
@@ -220,7 +221,7 @@ namespace NanoShieldArmor
             Pawn wearer = (parent as Apparel)?.Wearer;
             if (wearer?.Spawned == true)
             {
-                float scale = Mathf.Lerp(Props.minDrawSize, Props.maxDrawSize, energy);
+                float scale = Mathf.Lerp(Props.minDrawSize, Props.maxDrawSize, Mathf.Clamp01(energy / EnergyMax));
                 EffecterDefOf.Shield_Break.SpawnAttached(parent, parent.MapHeld, scale);
                 FleckMaker.Static(wearer.TrueCenter(), wearer.Map, FleckDefOf.ExplosionFlash, 12f);
                 for (int i = 0; i < 6; i++)
