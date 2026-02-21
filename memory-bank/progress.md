@@ -2,62 +2,87 @@
 
 ## What Works
 
-### C# Code (완성)
-- [x] `NanoShieldSuit` apparel class — 네임스페이스 `NanoTech`
-- [x] `CompNanoShieldSuit` component — 에너지 관리, 데미지 흡수, break/reset 로직
-- [x] Shield belt conflict resolution — 인벤토리로 이동 (RemoveShieldBelt helper)
+### C# Code (complete)
+- [x] `NanoShieldSuit` apparel class — namespace `NanoTech`
+- [x] `CompNanoShieldSuit` component — energy management, damage absorption, break/reset logic
+- [x] Shield belt conflict resolution — moves to inventory (RemoveShieldBelt helper)
 - [x] EMP damage multiplier (0.5x)
 - [x] Visual shield bubble (`CompDrawWornExtras`)
 - [x] Break effects (explosion flash, dust puffs)
 - [x] Shake/impact visual on damage hit
-- [x] Reset timer (startingTicksToReset = 1600)
-- [x] Passive energy recharge (IsHashIntervalTick(60) 기반)
+- [x] Reset timer (`startingTicksToReset`)
+- [x] Passive energy recharge (IsHashIntervalTick(60) based)
 - [x] Save/load persistence (`PostExposeData`)
 - [x] `Gizmo_NanoShieldSuitStatus` UI bar
 - [x] `CompProperties_NanoShieldSuit` with XML-configurable properties
-- [x] RimWorld 1.6 호환 (`protected override void Tick()`)
+- [x] RimWorld 1.6 compatible (`protected override void Tick()`)
 - [x] DEV gizmo commands (Break, Clear Reset)
 
-### XML Defs (완성)
+### XML Defs (complete)
 - [x] `About.xml` — packageId: Epsilonely.NanoTech, name: NanoTech
-- [x] `ThingDefs/NanoShieldArmor.xml` — thingClass: NanoTech.NanoShieldSuit ✓
+- [x] `ThingDefs/NanoShieldArmor.xml` — thingClass: NanoTech.NanoShieldSuit
 - [x] `ResearchProjectDefs/ResearchProjects.xml` — defName: NanoTech
-- [x] `Languages/Korean/` — 한국어 번역 완료
-- [x] 텍스처 — NanoShieldSuit 방향별 이미지 완비
+- [x] `Languages/Korean/` — Korean translations complete
+- [x] Textures — NanoShieldSuit directional sprites complete
 
-### 이름 변경 (2026-02-21 완료)
-- [x] 솔루션/프로젝트 파일명 → NanoTech
-- [x] 네임스페이스 → NanoTech
-- [x] 클래스명 → NanoShieldSuit, CompNanoShieldSuit 등
-- [x] XML thingClass / compClass 참조 → NanoTech.* 로 수정
+### Rename (2026-02-21 complete)
+- [x] Solution/project filenames → NanoTech
+- [x] Namespace → NanoTech
+- [x] Class names → NanoShieldSuit, CompNanoShieldSuit, etc.
+- [x] XML thingClass / compClass references → NanoTech.*
+
+### Balance Patch (2026-02-21 complete)
+- [x] `Insulation_Cold` / `Insulation_Heat`: 50 → 80
+- [x] `VacuumResistance`: +0.45 added (Odyssey DLC, auto-ignored if absent)
+- [x] `EnergyShieldEnergyMax`: 1.8 → 1.3
+- [x] `EnergyShieldRechargeRate`: 0.0006 → 0.0005
+- [x] `energyLossPerDamage`: 0.002 → 0.01 (XML + C# synced)
+- [x] `startingTicksToReset`: 1600 → 2400 (XML + C# synced)
 
 ## Remaining Tasks
 
-### 빌드 & 배포
-- [ ] VS에서 Release 빌드 실행
-- [ ] `NanoTech.dll` → `Assemblies/` 폴더 복사 (기존 `NanoShieldArmor.dll` 삭제)
-- [ ] (선택) Post-build 이벤트로 자동 배포 설정
+### Passive Stats
+- [ ] `MoveSpeed` +0.48 via `equippedStatOffsets` (XML only — feasible)
+- [ ] `WorkSpeedGlobal`, `AimingDelayFactor`, `ImmunityGainSpeed` (requires C# StatPart — pending decision)
 
-### 테스트
-- [ ] 게임 내 테스트: 장착, 데미지 흡수, shield break/reset, gizmo 표시
-- [ ] EMP 상호작용 테스트
-- [ ] 밸런스 검토 (energyLossPerDamage=0.002, EnergyMax=1.8, reset=1600틱)
+### Crafting Difficulty
+- [ ] Increase `WorkToMake` (currently 8000)
+- [ ] Replace `costList` with appropriate high-tier materials
+- [ ] Increase research cost (currently 6000) and add prerequisites
+- [ ] Change `techLevel` from Industrial to Spacer
+
+### Content
+- [ ] Update `description` with lore flavor text
+
+### Build & Deploy
+- [ ] Run Release build in VS
+- [ ] Copy `NanoTech.dll` → `Assemblies/` (delete old `NanoShieldArmor.dll`)
+- [ ] (Optional) Set up post-build event for auto-deploy
+
+### Testing
+- [ ] In-game test: equip, damage absorption, shield break/reset, gizmo display
+- [ ] EMP interaction test
+- [ ] Balance review with updated numbers
+- [ ] Vacuum resistance test (Odyssey DLC map)
 
 ### Nice to Have
 - [ ] README.md
-- [ ] Steam Workshop 출시 설정
+- [ ] Nano Helmet (planned for future development)
+- [ ] Steam Workshop release setup
 
 ## Known Issues
 
 | Issue | Severity | Notes |
 |---|---|---|
-| DLL 미교체 | Blocking | 빌드 후 Assemblies에 NanoTech.dll 넣고 NanoShieldArmor.dll 삭제 필요 |
+| DLL not deployed | Blocking | Build NanoTech.dll and replace NanoShieldArmor.dll in Assemblies/ |
 
 ## Status Summary
 
-**Overall**: C# 코드 및 XML Defs 완성. 빌드 후 배포 및 게임 내 테스트만 남음.
+**Overall**: Balance adjustments complete. Passive stats and crafting difficulty pending.
 
 **C# Code**: 100% complete
-**XML Defs**: 100% complete
-**Build & Deploy**: 0% (빌드 미실행)
+**XML Defs**: 100% complete (balance updated)
+**Passive Stats**: 0% (pending decision)
+**Crafting Difficulty**: 0%
+**Build & Deploy**: 0%
 **Testing**: 0%

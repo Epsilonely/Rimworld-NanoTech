@@ -161,6 +161,13 @@ namespace NanoTech
                     }
                 }
             }
+
+            // HP 자가 수복: 착용 중일 때 2500틱마다 최대 HP의 1% 회복
+            if ((parent as Apparel)?.Wearer != null && parent.IsHashIntervalTick(2500))
+            {
+                int healAmount = Mathf.Max(1, Mathf.RoundToInt(parent.MaxHitPoints * 0.01f));
+                parent.HitPoints = Mathf.Min(parent.HitPoints + healAmount, parent.MaxHitPoints);
+            }
         }
 
         public override void CompDrawWornExtras()
