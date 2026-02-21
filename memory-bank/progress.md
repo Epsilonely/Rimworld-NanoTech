@@ -39,10 +39,19 @@
 - [x] `energyLossPerDamage`: 0.002 → 0.01 (XML + C# synced)
 - [x] `startingTicksToReset`: 1600 → 2400 (XML + C# synced)
 
+### Passive Stats & New Features (2026-02-21 complete)
+- [x] `MoveSpeed` +0.48 via `equippedStatOffsets` (XML)
+- [x] HP self-repair — restores 1% of MaxHP every 2500 ticks while worn (C#)
+
+### Content & Documentation (2026-02-21 complete)
+- [x] `About.xml` — detailed mod description with feature list
+- [x] `NanoShieldArmor.xml` — in-game English description updated
+- [x] `NanoShieldSuit.xml` (Korean) — Korean translation updated
+- [x] `README.md` — created at project root
+
 ## Remaining Tasks
 
-### Passive Stats
-- [ ] `MoveSpeed` +0.48 via `equippedStatOffsets` (XML only — feasible)
+### Passive Stats (deferred)
 - [ ] `WorkSpeedGlobal`, `AimingDelayFactor`, `ImmunityGainSpeed` (requires C# StatPart — pending decision)
 
 ### Crafting Difficulty
@@ -51,9 +60,6 @@
 - [ ] Increase research cost (currently 6000) and add prerequisites
 - [ ] Change `techLevel` from Industrial to Spacer
 
-### Content
-- [ ] Update `description` with lore flavor text
-
 ### Build & Deploy
 - [ ] Run Release build in VS
 - [ ] Copy `NanoTech.dll` → `Assemblies/` (delete old `NanoShieldArmor.dll`)
@@ -61,12 +67,12 @@
 
 ### Testing
 - [ ] In-game test: equip, damage absorption, shield break/reset, gizmo display
+- [ ] HP self-repair verification (every 2500 ticks, +5 HP)
+- [ ] MoveSpeed +0.48 visible in stat panel
 - [ ] EMP interaction test
-- [ ] Balance review with updated numbers
 - [ ] Vacuum resistance test (Odyssey DLC map)
 
 ### Nice to Have
-- [ ] README.md
 - [ ] Nano Helmet (planned for future development)
 - [ ] Steam Workshop release setup
 
@@ -78,11 +84,12 @@
 
 ## Status Summary
 
-**Overall**: Balance adjustments complete. Passive stats and crafting difficulty pending.
+**Overall**: Content updates complete. Build & deploy and testing pending.
 
 **C# Code**: 100% complete
-**XML Defs**: 100% complete (balance updated)
-**Passive Stats**: 0% (pending decision)
+**XML Defs**: 100% complete
+**Passive Stats**: Partial (MoveSpeed done, others deferred)
+**Content & Docs**: 100% complete
 **Crafting Difficulty**: 0%
 **Build & Deploy**: 0%
 **Testing**: 0%

@@ -3,45 +3,38 @@
 ## Current Status
 
 **Date**: 2026-02-21
-**Phase**: Balance adjustments in progress (vacuum buffs + shield nerfs complete)
+**Phase**: Content updates complete — ready for build & deploy
 
-## Recent Work (2026-02-21 Balance Patch)
+## Recent Work (2026-02-21 Session 2)
 
-### Vacuum Environment Buffs (XML complete)
-- `Insulation_Cold`: 50 → **80**
-- `Insulation_Heat`: 50 → **80**
-- `VacuumResistance`: none → **+0.45** (added to `equippedStatOffsets`)
-  - Auto-ignored if Odyssey DLC is not present (no extra C# check needed)
+### Passive Stats (partial — XML only)
+- `MoveSpeed` +0.48 → applied via `equippedStatOffsets` (XML)
+- `WorkSpeedGlobal`, `AimingDelayFactor`, `ImmunityGainSpeed` → deferred (requires C# StatPart, decision pending)
 
-### Shield Nerfs (XML + C# complete)
-- `EnergyShieldEnergyMax`: 1.8 → **1.3**
-- `EnergyShieldRechargeRate`: 0.0006 → **0.0005**
-- `energyLossPerDamage`: 0.002 → **0.01** (synced in XML and CompProperties_NanoShieldSuit.cs)
-- `startingTicksToReset`: 1600 → **2400** (synced in XML and CompProperties_NanoShieldSuit.cs)
-- `energyOnReset`: 0.5 (unchanged)
+### HP Self-Repair (C# complete)
+- Added to `CompNanoShieldSuit.CompTick()`
+- Restores 1% of MaxHitPoints every 2500 ticks (~42s) while worn
+- Uses `IsHashIntervalTick(2500)` — performance safe
 
-### Reference: Shield Belt Stats (for comparison)
-- EnergyMax: 1.1 / RechargeRate: 0.13 / energyLossPerDamage: 0.033 / reset: 3200 ticks
+### Description & Documentation (complete)
+- `About.xml` — detailed mod description with feature list
+- `NanoShieldArmor.xml` — in-game English description updated
+- `NanoShieldSuit.xml` (Korean) — Korean translation updated
+- `README.md` — created at project root
+
+### Previous Session (2026-02-21 Session 1)
+- Balance patch complete (shield nerfs, vacuum buffs)
+- Rename complete (NanoTech namespace)
 
 ## Active Decisions / Open Questions
 
-### Passive Stats Implementation (pending)
-- `MoveSpeed` +0.48 → **XML only (equippedStatOffsets)** — feasible
-- `WorkSpeedGlobal`, `AimingDelayFactor`, `ImmunityGainSpeed` → **XML not supported; requires C# StatPart**
-- `BleedRateMultiplier` → **stat does not exist in RimWorld 1.6**
-- Direction not yet decided (XML only vs. full C# implementation)
-
-### Open Items
-1. **Passive stats** — MoveSpeed XML only, or implement others via C#?
-2. **Crafting difficulty** — WorkToMake, costList, research cost increase pending
-3. **Description** — lore text update pending
-4. **DLL deployment** — build NanoTech.dll and replace old NanoShieldArmor.dll in Assemblies/
-5. **Post-build event** — auto-copy DLL on build (undecided)
-6. **Nano Helmet** — planned for future development
+- `WorkSpeedGlobal`, `AimingDelayFactor`, `ImmunityGainSpeed` — C# StatPart implementation: pending decision
+- Crafting difficulty — WorkToMake, costList, research cost increase: not yet done
+- Post-build auto-copy event: not configured
 
 ## Next Steps (Suggested)
 
-1. Decide and apply passive stat approach
-2. Increase crafting difficulty (WorkToMake, costList, research cost)
-3. Update description text (lore flavor)
-4. VS Release build → deploy DLL → in-game test
+1. VS Release build → generate `NanoTech.dll`
+2. Copy `NanoTech.dll` → `Assemblies/` (delete old `NanoShieldArmor.dll`)
+3. In-game test (shield, HP repair, move speed, descriptions)
+4. Crafting difficulty adjustment (optional)
