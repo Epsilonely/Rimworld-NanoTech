@@ -1,57 +1,63 @@
-# Progress: NanoShieldArmor
+# Progress: NanoTech
 
 ## What Works
 
-### Implemented (C# Code)
-- [x] `NanoShieldArmor` apparel class with lifecycle hooks (`Notify_Equipped`, `Notify_Unequipped`, `CheckPreAbsorbDamage`, `ExposeData`)
-- [x] `CompNanoShieldArmor` component with energy management, damage absorption, break/reset logic
-- [x] Shield belt conflict removal on equip (`RemoveShieldBelt()` helper, `const ShieldBeltDefName`)
-- [x] EMP damage energy loss multiplier (0.5x, hardcoded in `PostPreApplyDamage`)
-- [x] Visual shield bubble drawing (`CompDrawWornExtras`)
-- [x] Break effects (explosion flash, dust puffs via `EffecterDef`/`FleckDef`)
+### C# Code (완성)
+- [x] `NanoShieldSuit` apparel class — 네임스페이스 `NanoTech`
+- [x] `CompNanoShieldSuit` component — 에너지 관리, 데미지 흡수, break/reset 로직
+- [x] Shield belt conflict resolution — 인벤토리로 이동 (RemoveShieldBelt helper)
+- [x] EMP damage multiplier (0.5x)
+- [x] Visual shield bubble (`CompDrawWornExtras`)
+- [x] Break effects (explosion flash, dust puffs)
 - [x] Shake/impact visual on damage hit
-- [x] Reset timer after shield break (`startingTicksToReset = 1600`)
-- [x] Passive energy recharge between breaks (60틱 간격, `EnergyShieldRechargeRate` stat 기반)
-- [x] Save/load persistence via `CompNanoShieldArmor.PostExposeData()`
-- [x] `Gizmo_NanoShieldArmorStatus` UI bar showing energy percentage
-- [x] `CompProperties_NanoShieldArmor` with configurable properties
+- [x] Reset timer (startingTicksToReset = 1600)
+- [x] Passive energy recharge (IsHashIntervalTick(60) 기반)
+- [x] Save/load persistence (`PostExposeData`)
+- [x] `Gizmo_NanoShieldSuitStatus` UI bar
+- [x] `CompProperties_NanoShieldSuit` with XML-configurable properties
 - [x] RimWorld 1.6 호환 (`protected override void Tick()`)
+- [x] DEV gizmo commands (Break, Clear Reset)
 
-### Code Quality (2026-02-18 refactor)
-- [x] 이중 저장/로드 제거 (Apparel → Comp로 통합)
-- [x] 매 틱 `GetStatValue()` 호출 → `IsHashIntervalTick(60)` 성능 개선
-- [x] Dead code 및 미사용 `blocksRangedWeapons` 제거
-- [x] `GetEnergy()`/`SetEnergy()` 등 중복 메서드 → 프로퍼티로 통일
-- [x] `Break()` scale 계산 음수 에너지 버그 수정
+### XML Defs (완성)
+- [x] `About.xml` — packageId: Epsilonely.NanoTech, name: NanoTech
+- [x] `ThingDefs/NanoShieldArmor.xml` — thingClass: NanoTech.NanoShieldSuit ✓
+- [x] `ResearchProjectDefs/ResearchProjects.xml` — defName: NanoTech
+- [x] `Languages/Korean/` — 한국어 번역 완료
+- [x] 텍스처 — NanoShieldSuit 방향별 이미지 완비
+
+### 이름 변경 (2026-02-21 완료)
+- [x] 솔루션/프로젝트 파일명 → NanoTech
+- [x] 네임스페이스 → NanoTech
+- [x] 클래스명 → NanoShieldSuit, CompNanoShieldSuit 등
+- [x] XML thingClass / compClass 참조 → NanoTech.* 로 수정
 
 ## Remaining Tasks
 
-### Required to be Playable
-- [ ] Remove stale `Class1.cs` reference from `NanoShieldArmor.csproj`
-- [ ] Create XML Defs (`ThingDef` for the armor, linking C# classes)
-- [ ] Create mod folder structure (`About/`, `Assemblies/`, `Defs/`, textures)
-- [ ] Write `About.xml` (mod metadata for RimWorld mod loader)
-- [ ] Configure build output to deploy DLL to mod's `Assemblies/` folder
-- [ ] Create or source shield bubble texture (if custom; else use vanilla)
-- [ ] In-game testing: all core behaviors
+### 빌드 & 배포
+- [ ] VS에서 Release 빌드 실행
+- [ ] `NanoTech.dll` → `Assemblies/` 폴더 복사 (기존 `NanoShieldArmor.dll` 삭제)
+- [ ] (선택) Post-build 이벤트로 자동 배포 설정
+
+### 테스트
+- [ ] 게임 내 테스트: 장착, 데미지 흡수, shield break/reset, gizmo 표시
+- [ ] EMP 상호작용 테스트
+- [ ] 밸런스 검토 (energyLossPerDamage=0.002, EnergyMax=1.8, reset=1600틱)
 
 ### Nice to Have
-- [ ] README.md with mod description and installation instructions
-- [ ] Steam Workshop publishing setup
-- [ ] Balance testing (energy values, reset timing, EMP interaction)
+- [ ] README.md
+- [ ] Steam Workshop 출시 설정
 
 ## Known Issues
 
 | Issue | Severity | Notes |
 |---|---|---|
-| `Class1.cs` reference in `.csproj` | Low | File doesn't exist; doesn't prevent build but is noisy |
-| No XML Defs | Blocking | Mod cannot be loaded in-game without Defs |
-| No mod folder structure | Blocking | DLL has nowhere to be deployed |
+| DLL 미교체 | Blocking | 빌드 후 Assemblies에 NanoTech.dll 넣고 NanoShieldArmor.dll 삭제 필요 |
 
 ## Status Summary
 
-**Overall**: C# 코드 완성 및 정리 완료. 모드 통합(XML Defs, 폴더 구조) 작업 필요.
+**Overall**: C# 코드 및 XML Defs 완성. 빌드 후 배포 및 게임 내 테스트만 남음.
 
 **C# Code**: 100% complete
-**Mod Integration**: 0% (no XML Defs, no mod folder, no deployment)
-**Testing**: 0% (no in-game test yet)
+**XML Defs**: 100% complete
+**Build & Deploy**: 0% (빌드 미실행)
+**Testing**: 0%

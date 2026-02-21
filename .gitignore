@@ -1,2 +1,6 @@
 /.vs
 /CLAUDE.md
+
+# Build output
+**/bin/
+**/obj/

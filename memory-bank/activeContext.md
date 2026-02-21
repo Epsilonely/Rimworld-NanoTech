@@ -1,38 +1,39 @@
-# Active Context: NanoShieldArmor
+# Active Context: NanoTech
 
 ## Current Status
 
-**Date**: 2026-02-18
-**Phase**: C# code refactored and cleaned up — ready for mod integration work
+**Date**: 2026-02-21
+**Phase**: 프로젝트 이름 변경 완료, 게임 내 테스트 준비 단계
 
 ## Recent Work
 
-- Memory bank initialized (2026-02-18)
-- **RimWorld 1.6 build fix**: `Tick()` 접근 제한자 `public` → `protected` 변경 (CS0507 오류 수정)
-- **7개 코드 개선 적용** (2026-02-18):
-  1. 이중 저장/로드 제거 → `CompNanoShieldArmor.PostExposeData()`로 통합
-  2. `CompTick()`에서 매 틱 `GetStatValue()` 호출 → `IsHashIntervalTick(60)`으로 성능 개선
-  3. 불필요한 빈 `DeSpawn()` 오버라이드 제거
-  4. `"Apparel_ShieldBelt"` 하드코딩 3곳 → `const ShieldBeltDefName`으로 통일, `RemoveShieldBelt()` 헬퍼로 중복 제거, `Tick()`의 반복 메시지 버그 수정
-  5. 주석 처리된 dead code 및 미사용 `blocksRangedWeapons` 제거
-  6. `GetEnergy()`/`SetEnergy()`/`SetBroken()`/`GetTicksToReset()`/`SetTicksToReset()` 제거 → 읽기/쓰기 프로퍼티로 통일
-  7. `Break()`에서 음수 에너지를 `Mathf.Lerp`에 전달하던 버그 → `Mathf.Clamp01(energy / EnergyMax)` 수정
+- **프로젝트 이름 변경** (NanoShieldArmor → NanoTech):
+  - 솔루션: `NanoShieldArmor.sln` → `NanoTech.sln`
+  - 프로젝트: `NanoShieldArmor.csproj` → `NanoTech.csproj`
+  - 네임스페이스: `NanoShieldArmor` → `NanoTech`
+  - 클래스명: `NanoShieldArmor` → `NanoShieldSuit`, `CompNanoShieldArmor` → `CompNanoShieldSuit` 등
+  - AssemblyName: `NanoShieldArmor` → `NanoTech`
+
+- **XML Defs 업데이트** (2026-02-21):
+  - `NanoShieldArmor.xml`의 `thingClass`: `NanoShieldArmor.NanoShieldArmor` → `NanoTech.NanoShieldSuit`
+  - `NanoShieldArmor.xml`의 `li Class`: `NanoShieldArmor.CompProperties_NanoShieldArmor` → `NanoTech.CompProperties_NanoShieldSuit`
+  - `About.xml`: 이미 `NanoTech` 이름으로 설정됨 (packageId: Epsilonely.NanoTech)
+  - `ResearchProjects.xml`: 이미 `NanoTech` 이름으로 설정됨
 
 ## Current Focus
 
-C# 코드 품질 개선 완료. 다음 작업은 모드 통합 (XML Defs, 폴더 구조, 배포 설정)
+XML 이름 변경 완료. 다음 단계는 빌드 후 DLL 교체 및 게임 내 테스트.
 
 ## Active Decisions / Open Questions
 
-1. **XML Defs location** — 별도 폴더/리포인지, 아직 미생성인지 확인 필요
-2. **Deployed mod path** — 컴파일된 DLL 배포 경로 미설정
-3. **Steam Workshop** — 출시 계획 여부 미결정, Workshop ID 없음
-4. **`Class1.cs` reference** — `.csproj`에 존재하지 않는 `Class1.cs` 참조 남아있음 (정리 필요)
+1. **DLL 교체** — 빌드 후 `NanoTech.dll`을 Assemblies 폴더에 넣고 기존 `NanoShieldArmor.dll` 삭제 필요
+2. **Post-build 이벤트** — 자동 DLL 복사 설정 여부 미결정
+3. **모드 폴더명** — 현재 `NanoShieldArmor`로 되어 있음 (필요 시 `NanoTech`로 변경 가능)
 
 ## Next Steps (Suggested)
 
-1. Remove stale `Class1.cs` reference from `.csproj`
-2. Create XML Defs (`ThingDef` for the armor, linking `NanoShieldArmor.NanoShieldArmor` and `CompNanoShieldArmor`)
-3. Set up mod folder structure (`About/`, `Assemblies/`, `Defs/`, textures)
-4. Configure build output → deploy DLL to mod's `Assemblies/` folder
-5. In-game testing: equip behavior, damage absorption, shield break/reset, gizmo display
+1. VS에서 Release 빌드 실행 (`Ctrl+Shift+B`)
+2. `NanoTech\bin\Release\NanoTech.dll` → `D:\SteamLibrary\steamapps\common\RimWorld\Mods\NanoShieldArmor\Assemblies\` 복사
+3. 기존 `NanoShieldArmor.dll` 삭제
+4. RimWorld 실행 → 게임 내 테스트
+5. (선택) Post-build 이벤트로 자동 배포 설정
