@@ -46,11 +46,31 @@ namespace NanoTech
         private float unequipEnergy;
         private bool wasUnequipped;
 
+        private const string NanoHelmetDefName = "NanoHelmet";
+        private static readonly HediffDef NanoSuitProtectionDef = HediffDef.Named("NanoSuitProtection");
+
+        private bool IsFullSetEquipped(Pawn pawn)
+        {
+            return pawn.apparel.WornApparel.Any(a => a.def.defName == NanoHelmetDefName);
+        }
+
+        private void UpdateProtectionHediff(Pawn pawn)
+        {
+            bool shouldHave = IsFullSetEquipped(pawn);
+            bool hasHediff = pawn.health.hediffSet.GetFirstHediffOfDef(NanoSuitProtectionDef) != null;
+
+            if (shouldHave && !hasHediff)
+                pawn.health.AddHediff(NanoSuitProtectionDef);
+            else if (!shouldHave && hasHediff)
+                pawn.health.RemoveHediff(pawn.health.hediffSet.GetFirstHediffOfDef(NanoSuitProtectionDef));
+        }
+
         public override void Notify_Equipped(Pawn pawn)
         {
             base.Notify_Equipped(pawn);
 
             RemoveShieldBelt(pawn, notify: true);
+            UpdateProtectionHediff(pawn);
 
             if (wasUnequipped)
             {
@@ -66,6 +86,11 @@ namespace NanoTech
         public override void Notify_Unequipped(Pawn pawn)
         {
             base.Notify_Unequipped(pawn);
+
+            // 슈트를 벗으면 무조건 Hediff 제거
+            var hediff = pawn.health.hediffSet.GetFirstHediffOfDef(NanoSuitProtectionDef);
+            if (hediff != null)
+                pawn.health.RemoveHediff(hediff);
 
             var shield = GetComp<CompNanoShieldSuit>();
             if (shield != null)

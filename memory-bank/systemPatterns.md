@@ -2,13 +2,15 @@
 
 ## Architecture Overview
 
-The mod follows RimWorld's standard **Component-Based architecture**. Logic is split across four C# classes:
+The mod follows RimWorld's standard **Component-Based architecture**. Logic is split across C# classes:
 
 ```
 NanoShieldSuit (Apparel)
   └── CompNanoShieldSuit (ThingComp)
         └── CompProperties_NanoShieldSuit (CompProperties)
   └── Gizmo_NanoShieldSuitStatus (Gizmo)
+
+NanoHelmet (Apparel)
 ```
 
 ## Namespace
@@ -21,48 +23,73 @@ All classes use namespace: `NanoTech`
 **File**: NanoTech/NanoShieldSuit.cs
 
 - `const ShieldBeltDefName = "Apparel_ShieldBelt"`
-- `RemoveShieldBelt(Pawn, bool notify)` — 벨트를 인벤토리로 이동 (notify=true면 메시지 출력)
-- `SpawnSetup()` — 첫 스폰 시 에너지 최대로 설정
-- `Notify_Equipped(Pawn)` — RemoveShieldBelt 호출, 재착용 시 에너지 복원
-- `Notify_Unequipped(Pawn)` — 탈착 시 에너지 저장
-- `protected override void Tick()` — 60틱마다 RemoveShieldBelt 호출 (엣지케이스)
-- `CheckPreAbsorbDamage()` — 벨트 착용 중이면 데미지 흡수 비활성화
-- `ExposeData()` — unequipEnergy, wasUnequipped 저장
+- `const NanoHelmetDefName = "NanoHelmet"`
+- `static readonly HediffDef NanoSuitProtectionDef`
+- `RemoveShieldBelt(Pawn, bool notify)` — Moves belt to inventory
+- `IsFullSetEquipped(Pawn)` — Returns true if NanoHelmet is also worn
+- `UpdateProtectionHediff(Pawn)` — Adds/removes NanoSuitProtection based on full set check
+- `SpawnSetup()` — Sets energy to max on first spawn
+- `Notify_Equipped(Pawn)` — RemoveShieldBelt + UpdateProtectionHediff + restore energy
+- `Notify_Unequipped(Pawn)` — Removes NanoSuitProtection Hediff unconditionally + saves energy
+- `protected override void Tick()` — Calls RemoveShieldBelt every 60 ticks
+- `CheckPreAbsorbDamage()` — Disables damage absorption if shield belt is worn
+- `ExposeData()` — Persists unequipEnergy and wasUnequipped
+
+### `NanoHelmet : Apparel`
+**File**: NanoTech/NanoHelmet.cs
+
+- `const NanoShieldSuitDefName = "NanoShieldSuit"`
+- `static readonly HediffDef NanoSuitProtectionDef`
+- `Notify_Equipped(Pawn)` — Applies NanoSuitProtection Hediff if suit is also worn
+- `Notify_Unequipped(Pawn)` — Removes NanoSuitProtection Hediff unconditionally
+- `protected override void Tick()` — HP self-repair: 1% MaxHP every 2500 ticks while worn
 
 ### `CompNanoShieldSuit : ThingComp`
 **File**: NanoTech/CompNanoShieldSuit.cs
 
 - Public API: `Energy`, `IsBroken`, `TicksToReset`, `EnergyMax`, `IsApparel`
-- `PostExposeData()` — energy, broken, ticksToReset 저장/로드
-- `CompTick()` — broken 시 reset 카운트다운; IsHashIntervalTick(60)마다 에너지 충전
-- `PostPreApplyDamage()` — 데미지 흡수; EMP 0.5x; 에너지 0 이하 시 Break()
-- `Break()` — Clamp01(energy/EnergyMax)로 안전한 scale 계산, 이펙트, broken 설정
-- `Reset()` — energyOnReset으로 복구
-- `CompDrawWornExtras()` — 쉴드 버블 렌더링 (에너지 비례 크기, 피격 시 흔들림)
-- `CompGetWornGizmosExtra()` / `CompGetGizmosExtra()` — Gizmo 제공 + DEV 커맨드
+- `PostExposeData()` — Saves/loads energy, broken, ticksToReset
+- `CompTick()` — Handles broken reset countdown; recharges energy every 60 ticks; HP self-repair every 2500 ticks
+- `PostPreApplyDamage()` — Absorbs damage; applies 0.5x multiplier for EMP; breaks at 0 energy
+- `Break()` — Calculates safe scale for effects, plays effects, sets broken flag
+- `Reset()` — Restores energy to energyOnReset value
+- `CompDrawWornExtras()` — Renders shield bubble (size proportional to energy, shake on hit)
+- `CompGetWornGizmosExtra()` / `CompGetGizmosExtra()` — Provides UI gizmo + DEV commands
 
 ### `CompProperties_NanoShieldSuit : CompProperties`
 **File**: NanoTech/CompProperties_NanoShieldSuit.cs
 
 | Property | Default | Description |
 |---|---|---|
-| `startingTicksToReset` | 1600 | 쉴드 파괴 후 리셋까지 틱 수 |
-| `minDrawSize` | 1.2f | 쉴드 버블 최소 반경 |
-| `maxDrawSize` | 1.55f | 쉴드 버블 최대 반경 |
-| `energyLossPerDamage` | 0.001f | 데미지 1당 에너지 소모 |
-| `energyOnReset` | 0.5f | 리셋 시 복구 에너지 (0~1) |
+| `startingTicksToReset` | 2400 | Ticks to reset after shield break |
+| `minDrawSize` | 1.2f | Minimum shield bubble radius |
+| `maxDrawSize` | 1.55f | Maximum shield bubble radius |
+| `energyLossPerDamage` | 0.01f | Energy loss per 1 damage |
+| `energyOnReset` | 0.5f | Energy restored on reset (0–1 scale) |
 
 ### `Gizmo_NanoShieldSuitStatus : Gizmo`
 **File**: NanoTech/Gizmo_NanoShieldSuitStatus.cs
 
-- UI-only; 에너지 fillable bar 표시 (현재값 / 최대값)
+- UI-only; displays fillable energy bar (current/max)
 
-## XML ↔ C# 연결
+## XML ↔ C# Connection
 
-| XML 값 | C# 타입 |
+| XML | C# Type |
 |---|---|
 | `<thingClass>NanoTech.NanoShieldSuit</thingClass>` | `NanoShieldSuit : Apparel` |
+| `<thingClass>NanoTech.NanoHelmet</thingClass>` | `NanoHelmet : Apparel` |
 | `<li Class="NanoTech.CompProperties_NanoShieldSuit">` | `CompProperties_NanoShieldSuit` |
+
+## Wetness Immunity Pattern
+
+**Pattern**: Hediff-based ThoughtDef nullification (no Harmony required)
+
+1. Define a custom `HediffDef` (`NanoSuitProtection`)
+2. Patch target `ThoughtDef` (`SoakingWet`) via `PatchOperationAdd` to add `<nullifyingHediffs>`
+3. Apply Hediff via C# `Notify_Equipped` when condition met; remove via `Notify_Unequipped`
+4. Condition: both NanoShieldSuit AND NanoHelmet must be worn simultaneously
+
+**Why not Harmony**: `ThoughtWorker_Wet` does not exist in RimWorld 1.6. `TryGainMemoryFast` has multiple overloads causing `AmbiguousMatchException`. Hediff nullification is the clean, stable solution.
 
 ## Key Design Patterns
 
@@ -84,5 +111,14 @@ if (parent.IsHashIntervalTick(60))
 {
     float rechargeRate = parent.GetStatValue(StatDefOf.EnergyShieldRechargeRate);
     energy += rechargeRate;
+}
+```
+
+### HP Self-Repair Pattern
+```csharp
+if (Wearer != null && this.IsHashIntervalTick(2500))
+{
+    int healAmount = Mathf.Max(1, Mathf.RoundToInt(MaxHitPoints * 0.01f));
+    HitPoints = Mathf.Min(HitPoints + healAmount, MaxHitPoints);
 }
 ```

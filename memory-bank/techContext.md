@@ -17,7 +17,8 @@
 |---|---|
 | `NanoTech.sln` | Visual Studio 2022 solution |
 | `NanoTech/NanoTech.csproj` | C# project, targets .NET 4.8 |
-| `NanoTech/NanoShieldSuit.cs` | Main apparel class |
+| `NanoTech/NanoShieldSuit.cs` | Main suit apparel class |
+| `NanoTech/NanoHelmet.cs` | Helmet apparel class |
 | `NanoTech/CompNanoShieldSuit.cs` | Shield component logic |
 | `NanoTech/CompProperties_NanoShieldSuit.cs` | Component properties |
 | `NanoTech/Gizmo_NanoShieldSuitStatus.cs` | UI gizmo |
@@ -31,19 +32,26 @@ D:\SteamLibrary\steamapps\common\RimWorld\Mods\NanoShieldArmor\
 │   ├── About.xml                  (packageId: Epsilonely.NanoTech)
 │   └── Preview.png
 ├── Assemblies\
-│   └── NanoShieldArmor.dll        ← 빌드 후 NanoTech.dll로 교체 필요
+│   └── NanoTech.dll
 ├── Defs\
+│   ├── HediffDefs\
+│   │   └── NanoSuitProtection.xml
 │   ├── ResearchProjectDefs\
 │   │   └── ResearchProjects.xml
 │   └── ThingDefs\
-│       └── NanoShieldArmor.xml    (thingClass: NanoTech.NanoShieldSuit)
+│       └── NanoTechApparel.xml    (NanoShieldSuit + NanoHelmet)
 ├── Languages\
 │   └── Korean\
 │       └── DefInjected\
+│           ├── HediffDefs\NanoSuitProtection.xml
 │           ├── ResearchProjectDefs\ResearchProjects.xml
 │           └── ThingDefs\NanoShieldSuit.xml
+├── Patches\
+│   └── SoakingWet_Nullify.xml    (patches SoakingWet ThoughtDef)
 └── Textures\
-    └── Armor\NanoShieldSuit\      (NanoShieldSuit_*.png 다수)
+    └── Armor\
+        ├── NanoShieldSuit\
+        └── NanoHelmet\
 ```
 
 ## Build Configuration
@@ -58,17 +66,19 @@ D:\SteamLibrary\steamapps\common\RimWorld\Mods\NanoShieldArmor\
 - `System`, `System.Core`, `System.Xml`, `System.Data`, `System.Net.Http`, `Microsoft.CSharp`
 
 ### RimWorld DLLs (HintPath: D:\SteamLibrary\steamapps\common\RimWorld\RimWorldWin64_Data\Managed\)
-- `Assembly-CSharp.dll` — Verse, RimWorld 네임스페이스
+- `Assembly-CSharp.dll` — Verse, RimWorld namespaces
 - `UnityEngine.dll`
 - `UnityEngine.CoreModule.dll`
 - `UnityEngine.IMGUIModule.dll`
 - `UnityEngine.TextRenderingModule.dll`
 
+> Note: Harmony (Lib.Harmony NuGet) was added then removed — not needed for current implementation.
+
 ## RimWorld API Surface Used
 
 | API | Usage |
 |---|---|
-| `Apparel` | Base class for NanoShieldSuit |
+| `Apparel` | Base class for NanoShieldSuit, NanoHelmet |
 | `ThingComp` | Base class for CompNanoShieldSuit |
 | `CompProperties` | Base class for CompProperties_NanoShieldSuit |
 | `Gizmo` | Base class for Gizmo_NanoShieldSuitStatus |
@@ -78,6 +88,9 @@ D:\SteamLibrary\steamapps\common\RimWorld\Mods\NanoShieldArmor\
 | `FleckMaker` | Dust/particle effects on break |
 | `StatDefOf.EnergyShieldEnergyMax` | Max energy stat |
 | `StatDefOf.EnergyShieldRechargeRate` | Recharge rate stat |
+| `HediffDef.Named()` | Lookup for NanoSuitProtection Hediff |
+| `Pawn_HealthTracker.AddHediff()` | Apply NanoSuitProtection on equip |
+| `Pawn_HealthTracker.RemoveHediff()` | Remove NanoSuitProtection on unequip |
 
 ## Setup Requirements
 
@@ -88,7 +101,6 @@ D:\SteamLibrary\steamapps\common\RimWorld\Mods\NanoShieldArmor\
 
 ## Deployment
 
-빌드 후 `NanoTech\bin\Release\NanoTech.dll`을 `D:\SteamLibrary\steamapps\common\RimWorld\Mods\NanoShieldArmor\Assemblies\`에 복사.
-기존 `NanoShieldArmor.dll` 삭제 필요.
+Build `NanoTech\bin\Release\NanoTech.dll` and copy to `D:\SteamLibrary\steamapps\common\RimWorld\Mods\NanoShieldArmor\Assemblies\`.
 
-> Post-build 이벤트 자동 복사는 아직 미설정.
+> Post-build auto-copy event not yet configured.

@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompNanoShieldSuit.cs" />
+    <Compile Include="NanoHelmet.cs" />
     <Compile Include="CompProperties_NanoShieldSuit.cs" />
     <Compile Include="Gizmo_NanoShieldSuitStatus.cs" />
     <Compile Include="NanoShieldSuit.cs" />

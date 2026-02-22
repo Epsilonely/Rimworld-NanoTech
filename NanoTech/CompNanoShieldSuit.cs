@@ -102,7 +102,6 @@ namespace NanoTech
                 return null;
             }
         }
-
         public bool IsApparel => parent is Apparel;
         private bool IsBuiltIn => !IsApparel;
 

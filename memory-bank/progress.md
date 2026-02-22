@@ -17,37 +17,31 @@
 - [x] `CompProperties_NanoShieldSuit` with XML-configurable properties
 - [x] RimWorld 1.6 compatible (`protected override void Tick()`)
 - [x] DEV gizmo commands (Break, Clear Reset)
+- [x] HP self-repair on suit — 1% MaxHP every 2500 ticks
+- [x] `NanoHelmet : Apparel` class — HP self-repair + Hediff equip/unequip logic
+- [x] `NanoSuitProtection` Hediff applied only when suit + helmet both worn
 
 ### XML Defs (complete)
 - [x] `About.xml` — packageId: Epsilonely.NanoTech, name: NanoTech
-- [x] `ThingDefs/NanoShieldArmor.xml` — thingClass: NanoTech.NanoShieldSuit
+- [x] `ThingDefs/NanoTechApparel.xml` — NanoShieldSuit + NanoHelmet definitions
 - [x] `ResearchProjectDefs/ResearchProjects.xml` — defName: NanoTech
-- [x] `Languages/Korean/` — Korean translations complete
-- [x] Textures — NanoShieldSuit directional sprites complete
-
-### Rename (2026-02-21 complete)
-- [x] Solution/project filenames → NanoTech
-- [x] Namespace → NanoTech
-- [x] Class names → NanoShieldSuit, CompNanoShieldSuit, etc.
-- [x] XML thingClass / compClass references → NanoTech.*
+- [x] `HediffDefs/NanoSuitProtection.xml` — wetness immunity Hediff
+- [x] `Patches/SoakingWet_Nullify.xml` — patches SoakingWet ThoughtDef with nullifyingHediffs
+- [x] `Languages/Korean/` — Korean translations complete (suit, helmet, hediff)
+- [x] Textures — NanoShieldSuit + NanoHelmet sprites
 
 ### Balance Patch (2026-02-21 complete)
 - [x] `Insulation_Cold` / `Insulation_Heat`: 50 → 80
-- [x] `VacuumResistance`: +0.45 added (Odyssey DLC, auto-ignored if absent)
+- [x] `VacuumResistance`: +0.45 (suit), +0.55 (helmet)
 - [x] `EnergyShieldEnergyMax`: 1.8 → 1.3
 - [x] `EnergyShieldRechargeRate`: 0.0006 → 0.0005
-- [x] `energyLossPerDamage`: 0.002 → 0.01 (XML + C# synced)
-- [x] `startingTicksToReset`: 1600 → 2400 (XML + C# synced)
+- [x] `energyLossPerDamage`: 0.002 → 0.01
+- [x] `startingTicksToReset`: 1600 → 2400
 
-### Passive Stats & New Features (2026-02-21 complete)
-- [x] `MoveSpeed` +0.48 via `equippedStatOffsets` (XML)
-- [x] HP self-repair — restores 1% of MaxHP every 2500 ticks while worn (C#)
-
-### Content & Documentation (2026-02-21 complete)
-- [x] `About.xml` — detailed mod description with feature list
-- [x] `NanoShieldArmor.xml` — in-game English description updated
-- [x] `NanoShieldSuit.xml` (Korean) — Korean translation updated
-- [x] `README.md` — created at project root
+### Passive Stats & Features (complete)
+- [x] `MoveSpeed` +0.48 via `equippedStatOffsets` (XML, suit)
+- [x] HP self-repair — suit: 1% MaxHP / 2500 ticks; helmet: same
+- [x] Wetness immunity — `NanoSuitProtection` Hediff nullifies `SoakingWet` thought when full set worn
 
 ## Remaining Tasks
 
@@ -57,39 +51,37 @@
 ### Crafting Difficulty
 - [ ] Increase `WorkToMake` (currently 8000)
 - [ ] Replace `costList` with appropriate high-tier materials
-- [ ] Increase research cost (currently 6000) and add prerequisites
-- [ ] Change `techLevel` from Industrial to Spacer
+- [ ] Increase research cost and add prerequisites
+- [ ] Confirm `techLevel` is Spacer
 
 ### Build & Deploy
 - [ ] Run Release build in VS
-- [ ] Copy `NanoTech.dll` → `Assemblies/` (delete old `NanoShieldArmor.dll`)
+- [ ] Copy `NanoTech.dll` → `Assemblies/`
 - [ ] (Optional) Set up post-build event for auto-deploy
 
 ### Testing
-- [ ] In-game test: equip, damage absorption, shield break/reset, gizmo display
-- [ ] HP self-repair verification (every 2500 ticks, +5 HP)
-- [ ] MoveSpeed +0.48 visible in stat panel
-- [ ] EMP interaction test
-- [ ] Vacuum resistance test (Odyssey DLC map)
+- [ ] Wetness immunity: confirm no SoakingWet debuff when suit+helmet worn in rain or water
+- [ ] Wetness resumes when either piece is removed
+- [ ] NanoHelmet HP self-repair (2500 ticks)
+- [ ] NanoSuitProtection Hediff visible in health tab (Korean: 나노 프로텍션)
+- [ ] Shield break/reset, gizmo, EMP, vacuum tests
 
 ### Nice to Have
-- [ ] Nano Helmet (planned for future development)
 - [ ] Steam Workshop release setup
 
 ## Known Issues
 
-| Issue | Severity | Notes |
-|---|---|---|
-| DLL not deployed | Blocking | Build NanoTech.dll and replace NanoShieldArmor.dll in Assemblies/ |
+None currently blocking (DLL deploy is a manual step, not a bug).
 
 ## Status Summary
 
-**Overall**: Content updates complete. Build & deploy and testing pending.
-
-**C# Code**: 100% complete
-**XML Defs**: 100% complete
-**Passive Stats**: Partial (MoveSpeed done, others deferred)
-**Content & Docs**: 100% complete
-**Crafting Difficulty**: 0%
-**Build & Deploy**: 0%
-**Testing**: 0%
+| Area | Status |
+|---|---|
+| C# Code | 100% complete |
+| XML Defs | 100% complete |
+| Wetness Immunity | 100% complete |
+| NanoHelmet | 100% complete |
+| Passive Stats | Partial (MoveSpeed done, others deferred) |
+| Crafting Difficulty | 0% |
+| Build & Deploy | Pending (manual step) |
+| Testing | 0% |
