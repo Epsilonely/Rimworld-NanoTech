@@ -42,6 +42,7 @@
 - [x] `MoveSpeed` +0.48 via `equippedStatOffsets` (XML, suit)
 - [x] HP self-repair — suit: 1% MaxHP / 2500 ticks; helmet: same
 - [x] Wetness immunity — `NanoSuitProtection` Hediff nullifies `SoakingWet` thought when full set worn
+- [x] Biological aging suppression — `HediffComp_NanoAgeless` on `NanoSuitProtection` (suit + helmet both worn)
 
 ## Remaining Tasks
 
@@ -73,6 +74,9 @@
 
 None currently blocking (DLL deploy is a manual step, not a bug).
 
+### Fixed This Session
+- [x] Shield breaking on fire extinguisher foam (`harmsHealth=false` check added to `PostPreApplyDamage`)
+
 ## Status Summary
 
 | Area | Status |
@@ -81,6 +85,7 @@ None currently blocking (DLL deploy is a manual step, not a bug).
 | XML Defs | 100% complete |
 | Wetness Immunity | 100% complete |
 | NanoHelmet | 100% complete |
+| Biological Aging Suppression | 100% complete |
 | Passive Stats | Partial (MoveSpeed done, others deferred) |
 | Crafting Difficulty | 0% |
 | Build & Deploy | Pending (manual step) |

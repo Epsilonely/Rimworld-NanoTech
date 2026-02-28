@@ -2,8 +2,29 @@
 
 ## Current Status
 
-**Date**: 2026-02-22
-**Phase**: Feature development in progress — wetness immunity + NanoHelmet implemented
+**Date**: 2026-02-28
+**Phase**: Feature development in progress — NanoAgeless effect + foam damage fix added
+
+## Recent Work (2026-02-28 Session)
+
+### NanoAgeless Effect (complete)
+- New file: `NanoTech/HediffComp_NanoAgeless.cs`
+- Classes: `HediffCompProperties_NanoAgeless` + `HediffComp_NanoAgeless`
+- Mechanism: `CompPostTick()` — every 250 ticks, `pawn.ageTracker.AgeBiologicalTicks -= 250`
+- Effective result: biological aging suppressed (equivalent to Ageless gene)
+- Condition: only active when `NanoSuitProtection` Hediff is present (suit + helmet both worn)
+- `NanoSuitProtection.xml` updated: `HediffCompProperties_NanoAgeless` comp registered
+
+### Foam Damage Shield Bug Fix (complete)
+- Bug: fire extinguisher foam (Extinguish damage, defaultDamage=999999) was breaking the shield
+- Root cause: shield absorbed all damage types including `harmsHealth=false` ones
+- Fix: `CompNanoShieldSuit.PostPreApplyDamage()` — skip absorption if `!dinfo.Def.harmsHealth`
+- Covers all non-harmful damage types (foam, stun, etc.) generically
+
+### Korean Translation (complete)
+- `Languages/Korean/DefInjected/ThingDefs/NanoShieldSuit.xml` — NanoHelmet Korean translation added
+  - label: `나노 헬멧`
+  - description: full Korean text including aging suppression mention
 
 ## Recent Work (2026-02-22 Session)
 
