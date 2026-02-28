@@ -201,6 +201,11 @@ namespace NanoTech
                 return;
             }
 
+            if (!dinfo.Def.harmsHealth)
+            {
+                return;
+            }
+
             float energyLoss = dinfo.Def == DamageDefOf.EMP
                 ? dinfo.Amount * Props.energyLossPerDamage * 0.5f
                 : dinfo.Amount * Props.energyLossPerDamage;
