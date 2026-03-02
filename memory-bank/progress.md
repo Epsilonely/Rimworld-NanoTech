@@ -21,9 +21,10 @@
 - [x] `NanoHelmet : Apparel` class — HP self-repair + Hediff equip/unequip logic
 - [x] `NanoSuitProtection` Hediff applied only when suit + helmet both worn
 - [x] Harmony patch — `AgeTickInterval` Prefix — aging suppression for adults only
+- [x] Harmony patch — `JobGiver_OptimizeApparel.TryGiveJob` Postfix — blocks AI shield belt equip
 
 ### XML Defs (complete)
-- [x] `About.xml` — packageId: Epsilonely.NanoTech, name: NanoTech
+- [x] `About.xml` — packageId: Epsilonely.NanoTech, Harmony modDependency added
 - [x] `ThingDefs/NanoTechApparel.xml` — NanoShieldSuit + NanoHelmet definitions
 - [x] `ResearchProjectDefs/ResearchProjects.xml` — defName: NanoTech
 - [x] `HediffDefs/NanoSuitProtection.xml` — wetness immunity Hediff (comps block removed)
@@ -47,9 +48,6 @@
 
 ## Remaining Tasks
 
-### Harmony Integration
-- [ ] Add Harmony modDependency to `About.xml` (packageId: `brrainz.harmony`)
-
 ### Passive Stats (deferred)
 - [ ] `WorkSpeedGlobal`, `AimingDelayFactor`, `ImmunityGainSpeed` (requires C# StatPart — pending decision)
 
@@ -60,6 +58,7 @@
 - [ ] Confirm `techLevel` is Spacer
 
 ### Testing
+- [ ] AI pawn with NanoShieldSuit: does NOT attempt to equip shield belt
 - [ ] Adult colonist with suit+helmet: aging suppressed
 - [ ] Child/teenager with suit: aging proceeds normally
 - [ ] Wetness immunity: confirm no SoakingWet debuff when suit+helmet worn in rain or water
@@ -76,6 +75,7 @@
 None currently blocking.
 
 ### Fixed This Session (2026-03-02)
+- [x] AI repeatedly re-equipping shield belt — blocked via `JobGiver_OptimizeApparel` Harmony Postfix
 - [x] Aging suppression applied to children — reworked to Harmony with `Adult` property check
 
 ### Fixed Previous Session (2026-02-28)
@@ -90,7 +90,8 @@ None currently blocking.
 | Wetness Immunity | 100% complete |
 | NanoHelmet | 100% complete |
 | Biological Aging Suppression | 100% complete (Harmony) |
-| Harmony Dependency | Partial (About.xml entry pending) |
+| Shield Belt AI Conflict | 100% complete (Harmony) |
+| Harmony Integration | 100% complete |
 | Passive Stats | Partial (MoveSpeed done, others deferred) |
 | Crafting Difficulty | 0% |
 | Build & Deploy | Post-build auto-copy configured |

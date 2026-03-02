@@ -7,7 +7,8 @@ namespace NanoTech
 {
     public class NanoShieldSuit : Apparel
     {
-        private const string ShieldBeltDefName = "Apparel_ShieldBelt";
+        public const string ShieldBeltDefName = "Apparel_ShieldBelt";
+        public const string NanoShieldSuitDefName = "NanoShieldSuit";
 
         private void RemoveShieldBelt(Pawn pawn, bool notify)
         {

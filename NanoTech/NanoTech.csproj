@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="CompNanoShieldSuit.cs" />
     <Compile Include="HediffComp_NanoAgeless.cs" />
+    <Compile Include="Patch_ShieldBeltOptimize.cs" />
     <Compile Include="NanoHelmet.cs" />
     <Compile Include="CompProperties_NanoShieldSuit.cs" />
     <Compile Include="Gizmo_NanoShieldSuitStatus.cs" />

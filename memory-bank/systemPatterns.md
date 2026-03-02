@@ -13,7 +13,8 @@ NanoShieldSuit (Apparel)
 NanoHelmet (Apparel)
 
 NanoTechHarmony (StaticConstructorOnStartup) — Harmony patch registration
-  └── Patch_AgeTickInterval_NanoAgeless (HarmonyPatch)
+  └── Patch_AgeTickInterval_NanoAgeless (HarmonyPatch)   — HediffComp_NanoAgeless.cs
+  └── Patch_ShieldBeltOptimize (HarmonyPatch)            — Patch_ShieldBeltOptimize.cs
 ```
 
 ## Namespace
@@ -78,10 +79,18 @@ All classes use namespace: `NanoTech`
 ### `NanoTechHarmony` + `Patch_AgeTickInterval_NanoAgeless`
 **File**: NanoTech/HediffComp_NanoAgeless.cs
 
-- `[StaticConstructorOnStartup]` — runs `harmony.PatchAll()` on game load
+- `[StaticConstructorOnStartup]` — runs `harmony.PatchAll()` on game load (auto-registers ALL `[HarmonyPatch]` classes in assembly)
 - Patches `Pawn_AgeTracker.AgeTickInterval(int delta)` with Prefix
 - Skips aging if: `__instance.Adult == true` AND pawn has `NanoSuitProtection` Hediff
 - `pawn` field accessed via `Traverse.Create(__instance).Field("pawn").GetValue<Pawn>()`
+
+### `Patch_ShieldBeltOptimize`
+**File**: NanoTech/Patch_ShieldBeltOptimize.cs
+
+- Postfix on `JobGiver_OptimizeApparel.TryGiveJob`
+- If returned job targets `Apparel_ShieldBelt` AND pawn wears `NanoShieldSuit` → sets `__result = null`
+- Prevents AI from ever queuing a shield belt equip job while wearing the nano suit
+- Auto-registered via `harmony.PatchAll()` — no manual wiring needed
 
 ## XML ↔ C# Connection
 
@@ -150,6 +159,21 @@ if (Wearer != null && this.IsHashIntervalTick(2500))
 {
     int healAmount = Mathf.Max(1, Mathf.RoundToInt(MaxHitPoints * 0.01f));
     HitPoints = Mathf.Min(HitPoints + healAmount, MaxHitPoints);
+}
+```
+
+### Shield Belt AI Block Pattern
+```csharp
+[HarmonyPatch(typeof(JobGiver_OptimizeApparel), "TryGiveJob")]
+static class Patch_ShieldBeltOptimize
+{
+    static void Postfix(Pawn pawn, ref Job __result)
+    {
+        if (__result == null) return;
+        if (__result.targetA.Thing?.def.defName == NanoShieldSuit.ShieldBeltDefName
+            && pawn.apparel.WornApparel.Any(a => a.def.defName == NanoShieldSuit.NanoShieldSuitDefName))
+            __result = null;
+    }
 }
 ```
 
