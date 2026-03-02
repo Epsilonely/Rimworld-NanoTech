@@ -47,7 +47,7 @@ namespace NanoTech
         private bool wasUnequipped;
 
         private const string NanoHelmetDefName = "NanoHelmet";
-        private static readonly HediffDef NanoSuitProtectionDef = HediffDef.Named("NanoSuitProtection");
+        public static readonly HediffDef NanoSuitProtectionDef = HediffDef.Named("NanoSuitProtection");
 
         private bool IsFullSetEquipped(Pawn pawn)
         {

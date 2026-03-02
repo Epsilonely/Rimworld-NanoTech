@@ -2,75 +2,61 @@
 
 ## Current Status
 
-**Date**: 2026-02-28
-**Phase**: Feature development in progress — NanoAgeless effect + foam damage fix added
+**Date**: 2026-03-02
+**Phase**: Feature development — Harmony-based aging suppression implemented
+
+## Recent Work (2026-03-02 Session)
+
+### Biological Aging Suppression — Reworked to Harmony (complete)
+- **Problem**: Previous `HediffComp_NanoAgeless` approach had a bug — children wearing the suit would have aging suppressed too
+- **Previous approach**: HediffComp `CompPostTick()` subtracting 250 ticks every 250 ticks — imprecise and applied to all ages
+- **New approach**: Harmony `Prefix` patch on `Pawn_AgeTracker.AgeTickInterval()` — skips the method entirely when conditions met
+
+**Implementation**:
+- File: `NanoTech/HediffComp_NanoAgeless.cs` (repurposed — no longer contains HediffComp classes)
+- `NanoTechHarmony` static class — `[StaticConstructorOnStartup]`, registers all patches via `harmony.PatchAll()`
+- `Patch_AgeTickInterval_NanoAgeless` — Prefix patch on `Pawn_AgeTracker.AgeTickInterval(int delta)`
+  - Returns `true` (allow aging) if pawn is not adult (`__instance.Adult == false`)
+  - Returns `true` if pawn does not have `NanoSuitProtection` Hediff
+  - Returns `false` (skip aging) if adult + NanoSuitProtection present
+  - `pawn` field accessed via `Traverse.Create(__instance).Field("pawn").GetValue<Pawn>()` (private field)
+  - Adult check: `__instance.Adult` property (race-agnostic, works for all species)
+
+**RimWorld 1.6 API discoveries**:
+- `AgeTick()` does NOT exist in RimWorld 1.6 — old decompile was outdated
+- Correct public method: `AgeTickInterval(int delta)` — public, takes delta ticks
+- `TickBiologicalAge()` exists but is **private** — cannot use with `nameof()`
+- `pawn` field on `Pawn_AgeTracker` is private — must use `Traverse`
+- `Adult` property exists and is public — race-aware adult check
+
+**XML change**: `NanoSuitProtection.xml` — removed `<comps>` block (HediffCompProperties_NanoAgeless no longer exists)
+
+### Harmony Dependency Added
+- NuGet: `Lib.Harmony.Ref` 2.4.2 installed (reference-only, no DLL bundled)
+- `.csproj`: `0Harmony` reference added via HintPath to `packages\Lib.Harmony.Ref.2.4.2\ref\netstandard2.0\0Harmony.dll`
+- `packages/` added to `.gitignore`
+- `NanoShieldSuit.NanoSuitProtectionDef` changed from `private` → `public static` (needed by Harmony patch class)
+- **Player requirement**: Must install [Harmony mod](steam://url/CommunityFilePage/2009463077) (packageId: `brrainz.harmony`)
+- `About.xml` modDependency for Harmony: **not yet added** (pending)
 
 ## Recent Work (2026-02-28 Session)
 
-### NanoAgeless Effect (complete)
-- New file: `NanoTech/HediffComp_NanoAgeless.cs`
-- Classes: `HediffCompProperties_NanoAgeless` + `HediffComp_NanoAgeless`
-- Mechanism: `CompPostTick()` — every 250 ticks, `pawn.ageTracker.AgeBiologicalTicks -= 250`
-- Effective result: biological aging suppressed (equivalent to Ageless gene)
-- Condition: only active when `NanoSuitProtection` Hediff is present (suit + helmet both worn)
-- `NanoSuitProtection.xml` updated: `HediffCompProperties_NanoAgeless` comp registered
-
 ### Foam Damage Shield Bug Fix (complete)
 - Bug: fire extinguisher foam (Extinguish damage, defaultDamage=999999) was breaking the shield
-- Root cause: shield absorbed all damage types including `harmsHealth=false` ones
 - Fix: `CompNanoShieldSuit.PostPreApplyDamage()` — skip absorption if `!dinfo.Def.harmsHealth`
-- Covers all non-harmful damage types (foam, stun, etc.) generically
 
 ### Korean Translation (complete)
-- `Languages/Korean/DefInjected/ThingDefs/NanoShieldSuit.xml` — NanoHelmet Korean translation added
-  - label: `나노 헬멧`
-  - description: full Korean text including aging suppression mention
-
-## Recent Work (2026-02-22 Session)
-
-### Wetness Immunity System (complete)
-- Approach: Hediff-based nullification (no Harmony required)
-- `NanoSuitProtection` HediffDef created (`Defs/HediffDefs/NanoSuitProtection.xml`)
-- `SoakingWet` ThoughtDef patched via `Patches/SoakingWet_Nullify.xml` using `PatchOperationAdd` to add `nullifyingHediffs`
-- Hediff applied/removed in `NanoShieldSuit.Notify_Equipped/Unequipped`
-- Initially: applied when suit is worn alone
-- Updated: applied only when **both** NanoShieldSuit + NanoHelmet are worn simultaneously
-
-### NanoHelmet Implementation (complete)
-- New C# class: `NanoHelmet : Apparel` (`NanoTech/NanoHelmet.cs`)
-- Registered in `NanoTech.csproj`
-- XML `thingClass` set to `NanoTech.NanoHelmet` in `NanoTechApparel.xml`
-- Features:
-  - `Notify_Equipped`: applies `NanoSuitProtection` Hediff if suit is also worn
-  - `Notify_Unequipped`: removes `NanoSuitProtection` Hediff unconditionally
-  - `Tick()`: HP self-repair — restores 1% of MaxHP every 2500 ticks while worn (same as suit)
-
-### NanoSuitProtection Hediff Logic
-- Condition: BOTH NanoShieldSuit AND NanoHelmet must be worn
-- `NanoShieldSuit.UpdateProtectionHediff(pawn)`: checks for NanoHelmet in worn apparel
-- `NanoHelmet.Notify_Equipped`: checks for NanoShieldSuit in worn apparel
-- Either piece unequipped → Hediff immediately removed
-
-### Harmony Attempt (abandoned)
-- Tried patching `ThoughtWorker_Wet` — class does not exist in RimWorld 1.6
-- Tried patching `MemoryThoughtHandler.TryGainMemoryFast(ThoughtDef)` — method overloads caused AmbiguousMatchException, then null return
-- Final solution: Hediff nullification via XML patch (no Harmony needed)
-- Harmony NuGet package (Lib.Harmony 2.4.2) and references removed from project
-
-### Korean Translation
-- `Languages/Korean/DefInjected/HediffDefs/NanoSuitProtection.xml` created
-- label: `나노 프로텍션`, description: full Korean text
-- Stage label removed (empty stage `<li />` in HediffDef to avoid showing "active")
+- NanoHelmet Korean translation added to `Languages/Korean/DefInjected/ThingDefs/NanoShieldSuit.xml`
 
 ## Active Decisions / Open Questions
 
+- `About.xml` Harmony dependency entry: not yet added
 - `WorkSpeedGlobal`, `AimingDelayFactor`, `ImmunityGainSpeed` — C# StatPart: still pending
 - Crafting difficulty — WorkToMake, costList, research cost: not yet done
-- Post-build auto-copy event: not configured
 
 ## Next Steps (Suggested)
 
-1. VS Release build → generate `NanoTech.dll`
-2. Copy `NanoTech.dll` → `Assemblies/`
-3. In-game test: wetness immunity (suit+helmet together), helmet HP repair, Hediff display
+1. Add Harmony modDependency to `About.xml`
+2. Release build → test aging suppression in-game
+3. Verify: adult colonist with suit+helmet does not age; child does age normally
 4. Crafting difficulty adjustment (optional)

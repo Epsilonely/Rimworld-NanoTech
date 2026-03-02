@@ -22,7 +22,10 @@
 | `NanoTech/CompNanoShieldSuit.cs` | Shield component logic |
 | `NanoTech/CompProperties_NanoShieldSuit.cs` | Component properties |
 | `NanoTech/Gizmo_NanoShieldSuitStatus.cs` | UI gizmo |
+| `NanoTech/HediffComp_NanoAgeless.cs` | Harmony init + AgeTickInterval patch |
 | `NanoTech/Properties/AssemblyInfo.cs` | Assembly metadata |
+| `NanoTech/packages.config` | NuGet package list |
+| `.gitignore` | Ignores: `.vs/`, `bin/`, `obj/`, `Properties/`, `packages/` |
 
 ## Deployed Mod Structure
 
@@ -59,6 +62,7 @@ D:\SteamLibrary\steamapps\common\RimWorld\Mods\NanoShieldArmor\
 - **Debug**: Full debug symbols, output to `NanoTech\bin\Debug\`
 - **Release**: PDB debug info only, optimized, output to `NanoTech\bin\Release\`
 - **Platform**: AnyCPU
+- **Post-build**: Auto-copies `NanoTech.dll` → `Assemblies\` (configured in .csproj)
 
 ## Dependencies
 
@@ -72,7 +76,11 @@ D:\SteamLibrary\steamapps\common\RimWorld\Mods\NanoShieldArmor\
 - `UnityEngine.IMGUIModule.dll`
 - `UnityEngine.TextRenderingModule.dll`
 
-> Note: Harmony (Lib.Harmony NuGet) was added then removed — not needed for current implementation.
+### Harmony
+- NuGet: `Lib.Harmony.Ref` 2.4.2 (reference-only package — no DLL bundled in Assemblies)
+- HintPath: `..\packages\Lib.Harmony.Ref.2.4.2\ref\netstandard2.0\0Harmony.dll`
+- Runtime: supplied by [HarmonyRimWorld mod](https://github.com/pardeike/HarmonyRimWorld) (packageId: `brrainz.harmony`)
+- Player must install Harmony mod from Steam Workshop separately
 
 ## RimWorld API Surface Used
 
@@ -91,6 +99,18 @@ D:\SteamLibrary\steamapps\common\RimWorld\Mods\NanoShieldArmor\
 | `HediffDef.Named()` | Lookup for NanoSuitProtection Hediff |
 | `Pawn_HealthTracker.AddHediff()` | Apply NanoSuitProtection on equip |
 | `Pawn_HealthTracker.RemoveHediff()` | Remove NanoSuitProtection on unequip |
+| `Pawn_AgeTracker.AgeTickInterval(int delta)` | Harmony patch target for aging suppression |
+| `Pawn_AgeTracker.Adult` | Public property — race-aware adult check |
+| `Traverse.Create().Field("pawn")` | Access private `pawn` field on Pawn_AgeTracker |
+
+## RimWorld 1.6 API Notes (Important)
+
+- `Pawn_AgeTracker.AgeTick()` — **does NOT exist** in 1.6 (old decompiles show this)
+- `Pawn_AgeTracker.AgeTickInterval(int delta)` — correct public method in 1.6
+- `Pawn_AgeTracker.TickBiologicalAge()` — exists but is **private**
+- `Pawn_AgeTracker.pawn` — private field, requires `Traverse`
+- `Pawn_AgeTracker.Adult` — public property, race-aware
+- `ThoughtWorker_Wet` — does NOT exist in 1.6
 
 ## Setup Requirements
 
@@ -98,9 +118,4 @@ D:\SteamLibrary\steamapps\common\RimWorld\Mods\NanoShieldArmor\
 2. RimWorld installed at `D:\SteamLibrary\steamapps\common\RimWorld\`
 3. .NET Framework 4.8 SDK
 4. Reference paths already configured in `.csproj`
-
-## Deployment
-
-Build `NanoTech\bin\Release\NanoTech.dll` and copy to `D:\SteamLibrary\steamapps\common\RimWorld\Mods\NanoShieldArmor\Assemblies\`.
-
-> Post-build auto-copy event not yet configured.
+5. NuGet restore (packages/ folder, gitignored)

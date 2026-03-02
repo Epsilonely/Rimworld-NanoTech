@@ -5,3 +5,6 @@
 **/bin/
 **/obj/
 **/Properties
+
+# NuGet packages
+packages/

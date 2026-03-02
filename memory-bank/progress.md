@@ -20,12 +20,13 @@
 - [x] HP self-repair on suit — 1% MaxHP every 2500 ticks
 - [x] `NanoHelmet : Apparel` class — HP self-repair + Hediff equip/unequip logic
 - [x] `NanoSuitProtection` Hediff applied only when suit + helmet both worn
+- [x] Harmony patch — `AgeTickInterval` Prefix — aging suppression for adults only
 
 ### XML Defs (complete)
 - [x] `About.xml` — packageId: Epsilonely.NanoTech, name: NanoTech
 - [x] `ThingDefs/NanoTechApparel.xml` — NanoShieldSuit + NanoHelmet definitions
 - [x] `ResearchProjectDefs/ResearchProjects.xml` — defName: NanoTech
-- [x] `HediffDefs/NanoSuitProtection.xml` — wetness immunity Hediff
+- [x] `HediffDefs/NanoSuitProtection.xml` — wetness immunity Hediff (comps block removed)
 - [x] `Patches/SoakingWet_Nullify.xml` — patches SoakingWet ThoughtDef with nullifyingHediffs
 - [x] `Languages/Korean/` — Korean translations complete (suit, helmet, hediff)
 - [x] Textures — NanoShieldSuit + NanoHelmet sprites
@@ -42,9 +43,12 @@
 - [x] `MoveSpeed` +0.48 via `equippedStatOffsets` (XML, suit)
 - [x] HP self-repair — suit: 1% MaxHP / 2500 ticks; helmet: same
 - [x] Wetness immunity — `NanoSuitProtection` Hediff nullifies `SoakingWet` thought when full set worn
-- [x] Biological aging suppression — `HediffComp_NanoAgeless` on `NanoSuitProtection` (suit + helmet both worn)
+- [x] Biological aging suppression — Harmony `AgeTickInterval` Prefix (adult + NanoSuitProtection condition)
 
 ## Remaining Tasks
+
+### Harmony Integration
+- [ ] Add Harmony modDependency to `About.xml` (packageId: `brrainz.harmony`)
 
 ### Passive Stats (deferred)
 - [ ] `WorkSpeedGlobal`, `AimingDelayFactor`, `ImmunityGainSpeed` (requires C# StatPart — pending decision)
@@ -55,12 +59,9 @@
 - [ ] Increase research cost and add prerequisites
 - [ ] Confirm `techLevel` is Spacer
 
-### Build & Deploy
-- [ ] Run Release build in VS
-- [ ] Copy `NanoTech.dll` → `Assemblies/`
-- [ ] (Optional) Set up post-build event for auto-deploy
-
 ### Testing
+- [ ] Adult colonist with suit+helmet: aging suppressed
+- [ ] Child/teenager with suit: aging proceeds normally
 - [ ] Wetness immunity: confirm no SoakingWet debuff when suit+helmet worn in rain or water
 - [ ] Wetness resumes when either piece is removed
 - [ ] NanoHelmet HP self-repair (2500 ticks)
@@ -72,9 +73,12 @@
 
 ## Known Issues
 
-None currently blocking (DLL deploy is a manual step, not a bug).
+None currently blocking.
 
-### Fixed This Session
+### Fixed This Session (2026-03-02)
+- [x] Aging suppression applied to children — reworked to Harmony with `Adult` property check
+
+### Fixed Previous Session (2026-02-28)
 - [x] Shield breaking on fire extinguisher foam (`harmsHealth=false` check added to `PostPreApplyDamage`)
 
 ## Status Summary
@@ -85,8 +89,9 @@ None currently blocking (DLL deploy is a manual step, not a bug).
 | XML Defs | 100% complete |
 | Wetness Immunity | 100% complete |
 | NanoHelmet | 100% complete |
-| Biological Aging Suppression | 100% complete |
+| Biological Aging Suppression | 100% complete (Harmony) |
+| Harmony Dependency | Partial (About.xml entry pending) |
 | Passive Stats | Partial (MoveSpeed done, others deferred) |
 | Crafting Difficulty | 0% |
-| Build & Deploy | Pending (manual step) |
+| Build & Deploy | Post-build auto-copy configured |
 | Testing | 0% |

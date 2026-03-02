@@ -11,6 +11,9 @@ NanoShieldSuit (Apparel)
   └── Gizmo_NanoShieldSuitStatus (Gizmo)
 
 NanoHelmet (Apparel)
+
+NanoTechHarmony (StaticConstructorOnStartup) — Harmony patch registration
+  └── Patch_AgeTickInterval_NanoAgeless (HarmonyPatch)
 ```
 
 ## Namespace
@@ -24,7 +27,7 @@ All classes use namespace: `NanoTech`
 
 - `const ShieldBeltDefName = "Apparel_ShieldBelt"`
 - `const NanoHelmetDefName = "NanoHelmet"`
-- `static readonly HediffDef NanoSuitProtectionDef`
+- `public static readonly HediffDef NanoSuitProtectionDef` — public for Harmony patch access
 - `RemoveShieldBelt(Pawn, bool notify)` — Moves belt to inventory
 - `IsFullSetEquipped(Pawn)` — Returns true if NanoHelmet is also worn
 - `UpdateProtectionHediff(Pawn)` — Adds/removes NanoSuitProtection based on full set check
@@ -50,7 +53,7 @@ All classes use namespace: `NanoTech`
 - Public API: `Energy`, `IsBroken`, `TicksToReset`, `EnergyMax`, `IsApparel`
 - `PostExposeData()` — Saves/loads energy, broken, ticksToReset
 - `CompTick()` — Handles broken reset countdown; recharges energy every 60 ticks; HP self-repair every 2500 ticks
-- `PostPreApplyDamage()` — Absorbs damage; applies 0.5x multiplier for EMP; breaks at 0 energy
+- `PostPreApplyDamage()` — Absorbs damage; applies 0.5x multiplier for EMP; breaks at 0 energy; skips if `!dinfo.Def.harmsHealth`
 - `Break()` — Calculates safe scale for effects, plays effects, sets broken flag
 - `Reset()` — Restores energy to energyOnReset value
 - `CompDrawWornExtras()` — Renders shield bubble (size proportional to energy, shake on hit)
@@ -72,6 +75,14 @@ All classes use namespace: `NanoTech`
 
 - UI-only; displays fillable energy bar (current/max)
 
+### `NanoTechHarmony` + `Patch_AgeTickInterval_NanoAgeless`
+**File**: NanoTech/HediffComp_NanoAgeless.cs
+
+- `[StaticConstructorOnStartup]` — runs `harmony.PatchAll()` on game load
+- Patches `Pawn_AgeTracker.AgeTickInterval(int delta)` with Prefix
+- Skips aging if: `__instance.Adult == true` AND pawn has `NanoSuitProtection` Hediff
+- `pawn` field accessed via `Traverse.Create(__instance).Field("pawn").GetValue<Pawn>()`
+
 ## XML ↔ C# Connection
 
 | XML | C# Type |
@@ -91,6 +102,20 @@ All classes use namespace: `NanoTech`
 
 **Why not Harmony**: `ThoughtWorker_Wet` does not exist in RimWorld 1.6. `TryGainMemoryFast` has multiple overloads causing `AmbiguousMatchException`. Hediff nullification is the clean, stable solution.
 
+## Aging Suppression Pattern
+
+**Pattern**: Harmony Prefix on `Pawn_AgeTracker.AgeTickInterval`
+
+- Condition: pawn is adult (`Pawn_AgeTracker.Adult` property) AND has `NanoSuitProtection` Hediff
+- `Adult` property is race-aware — works for all species, no hardcoded age
+- `pawn` field is private — accessed via `Traverse`
+- Returns `false` to skip the original method entirely (no age tick applied)
+
+**RimWorld 1.6 API notes**:
+- `AgeTick()` does not exist — use `AgeTickInterval(int delta)` (public)
+- `TickBiologicalAge()` exists but is private
+- `Pawn_AgeTracker.pawn` is a private field — use `Traverse`
+
 ## Key Design Patterns
 
 ### EMP Special Casing
@@ -98,6 +123,11 @@ All classes use namespace: `NanoTech`
 float energyLoss = dinfo.Def == DamageDefOf.EMP
     ? dinfo.Amount * Props.energyLossPerDamage * 0.5f
     : dinfo.Amount * Props.energyLossPerDamage;
+```
+
+### Non-Harmful Damage Skip
+```csharp
+if (!dinfo.Def.harmsHealth) return false;
 ```
 
 ### Safe Scale Calculation on Break
@@ -120,5 +150,22 @@ if (Wearer != null && this.IsHashIntervalTick(2500))
 {
     int healAmount = Mathf.Max(1, Mathf.RoundToInt(MaxHitPoints * 0.01f));
     HitPoints = Mathf.Min(HitPoints + healAmount, MaxHitPoints);
+}
+```
+
+### Harmony Aging Suppression Pattern
+```csharp
+[HarmonyPatch(typeof(Pawn_AgeTracker), nameof(Pawn_AgeTracker.AgeTickInterval))]
+static class Patch_AgeTickInterval_NanoAgeless
+{
+    static bool Prefix(Pawn_AgeTracker __instance, int delta)
+    {
+        if (!__instance.Adult) return true;
+        Pawn pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
+        if (pawn == null) return true;
+        if (pawn.health?.hediffSet?.HasHediff(NanoShieldSuit.NanoSuitProtectionDef) == true)
+            return false;
+        return true;
+    }
 }
 ```

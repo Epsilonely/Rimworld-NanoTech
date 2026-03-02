@@ -1,25 +1,32 @@
+using HarmonyLib;
 using Verse;
 
 namespace NanoTech
 {
-    public class HediffCompProperties_NanoAgeless : HediffCompProperties
+    [StaticConstructorOnStartup]
+    public static class NanoTechHarmony
     {
-        public HediffCompProperties_NanoAgeless()
+        static NanoTechHarmony()
         {
-            compClass = typeof(HediffComp_NanoAgeless);
+            var harmony = new Harmony("Epsilonely.NanoTech");
+            harmony.PatchAll();
         }
     }
 
-    public class HediffComp_NanoAgeless : HediffComp
+    [HarmonyPatch(typeof(Pawn_AgeTracker), nameof(Pawn_AgeTracker.AgeTickInterval))]
+    static class Patch_AgeTickInterval_NanoAgeless
     {
-        private const int IntervalTicks = 250;
-
-        public override void CompPostTick(ref float severityAdjustment)
+        static bool Prefix(Pawn_AgeTracker __instance, int delta)
         {
-            if (Pawn.IsHashIntervalTick(IntervalTicks))
-            {
-                Pawn.ageTracker.AgeBiologicalTicks -= IntervalTicks;
-            }
+            if (!__instance.Adult) return true;
+
+            Pawn pawn = Traverse.Create(__instance).Field("pawn").GetValue<Pawn>();
+            if (pawn == null) return true;
+
+            if (pawn.health?.hediffSet?.HasHediff(NanoShieldSuit.NanoSuitProtectionDef) == true)
+                return false;
+
+            return true;
         }
     }
 }
